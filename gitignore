@@ -1,0 +1,117 @@
+# ---- OS files ----
+# macOS
+.DS_Store
+.AppeDouble
+.LSOverride
+__MACOSX/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.nfs*
+
+# ---- Editors / IDE ----
+# VS Code
+.vscode/
+.history/
+*.code-workspace
+
+# JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+*.iml
+out/
+*.ipr
+*.iws
+
+# Cursor / local extensions
+.cursor/
+
+# ---- Programming Languages ----
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+*.egg-info/
+.eggs/
+*.egg
+*.manifest
+*.spec
+dist/
+build/
+venv/
+ENV/
+.env
+.env.*
+.cache/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.ser
+*.log
+hs_err_pid*
+
+# Go
+bin/
+*.test
+*.out
+
+# Rust
+target/
+Cargo.lock
+
+# C / C++
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.exe
+*.out
+*.a
+*.lib
+
+# ---- Others ----
+# Logs
+logs/
+*.log
+*.log.*
+
+# Temporary
+tmp/
+temp/
+.cache/
+*.swp
+*.swo
+
+# Coverage / Test
+.coverage
+coverage/
+*.lcov
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Backup
+*.bak
+*.orig
+*.tmp
+*.old
