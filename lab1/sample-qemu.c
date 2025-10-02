@@ -154,9 +154,14 @@ int main(void)
         case KVM_EXIT_IO:
         // --------------------------------------
         //---------- START YOUR CODE -------------
-
-
-
+        if (run->io.direction == KVM_EXIT_IO_OUT && 
+            run->io.size == 1 && 
+            run->io.port == 0x3f8) {
+            // 处理串口输出
+            putchar(*((char*)run + run->io.data_offset));
+            fflush(stdout);
+        }
+        break;
         // --------- END OF YOUR CODE ------------
         //  ------------------------------------- 
         case KVM_EXIT_FAIL_ENTRY:
@@ -168,4 +173,4 @@ int main(void)
             errx(1, "exit_reason = 0x%x", run->exit_reason);
         }
     }
-}                                                                                                                                                                                             148,4         Bot
+}

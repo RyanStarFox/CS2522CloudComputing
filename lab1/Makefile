@@ -1,4 +1,4 @@
 all:
-        $(CC) sample-qemu.c -o sample-qemu
+	$(CC) sample-qemu.c -o sample-qemu
 clean:
-        rm sample-qemu
+	rm sample-qemu
