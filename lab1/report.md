@@ -1,6 +1,8 @@
-# 实验报告
+# 实验一: CPU 虚拟化
 
-## 基础问题部分
+[523031910224] [邵言]
+
+## 1 调研部分
 
 ### 问题1: 请根据你的理解解释可虚拟化架构与不可虚拟化架构的概念
 
@@ -34,23 +36,75 @@
 
 为了满足虚拟机系统本质要求“等价”，即使是虚拟机，也要支持Ring0，但这又与虚拟机系统本质要求的“资源控制”不能直接访问物理资源矛盾。因此引入“非根模式”，这样的话，虚拟机系统仍然可以认为自己处于Ring0，而运行敏感指令的时候，会触发陷入，由Hypervisor接管。
 
+## 2 实验目的
 
+1. 熟悉Linux的KVM库，了解Hypervisor的运作方式和具体原理。
+2. 了解CPU虚拟化的逻辑和具体实现
 
-## 实验部分
+## 3 实验步骤
 
-实验代码解释
+1. 环境配置：
 
-| 行数    | 代码解释                                                     |
-| ------- | ------------------------------------------------------------ |
-| 39-70   | 汇编代码，打印“Hello, world!”                                |
-| 76-85   | 定义kvm，用于给vm分配硬件资源                                |
-| 87-89   | 定义vm                                                       |
-| 91-106  | 分配一块内存空间，并且把它给虚拟机的内存                     |
-| 108-110 | 创建一个vCPU                                                 |
-| 112-121 | 把vCPU的kvm_run结构，与Hypervisor双向共享。kvm_run相当于是vCPU的实时状态板 |
-| 123-131 | 初始化Code Segment                                           |
-| 133-143 | 初始化Register                                               |
-| 145-175 | 让vCPU运行汇编代码，定义了各类事件                           |
+   1. 一开始使用MacBook的Vmware，使用之前安装的Ubuntu。
+
+   2. 实验中遇到问题，转而使用一台之前安装过Deepin的物理机（在4 实验分析中有解释）。
+
+   3. 两者为了方便实验和自己的使用习惯，均安装zsh，oh-my-zsh，autosuggestion，zoxoide
+
+      ```shell
+      sudo apt install zsh
+      sudo chsh -s $(which zsh)
+      sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+      sudo apt install zoxide -y
+      ```
+
+      
+
+2. 阅读lab已有代码，了解代码结构与作用，具体如下：
+
+   | 行数    | 代码解释                                                     |
+   | ------- | ------------------------------------------------------------ |
+   | 39-70   | 汇编代码，打印“Hello, world!”                                |
+   | 76-85   | 定义kvm，用于给vm分配硬件资源                                |
+   | 87-89   | 定义vm                                                       |
+   | 91-106  | 分配一块内存空间，并且把它给虚拟机的内存                     |
+   | 108-110 | 创建一个vCPU                                                 |
+   | 112-121 | 把vCPU的kvm_run结构，与Hypervisor双向共享。kvm_run相当于是vCPU的实时状态板 |
+   | 123-131 | 初始化Code Segment                                           |
+   | 133-143 | 初始化Register                                               |
+   | 145-175 | 让vCPU运行汇编代码，定义了各类事件                           |
+
+3. 根据要求编写代码
+
+   1. 要求VM 的 IO 全部满足以下情况时，我们才打印内容：
+
+      1. I/0 操作的方向为输出(宏定义为 KVM_EXIT_IO_OUT)
+      2. I/O 操作的数据大小为 1字节
+      3. I/O 操作的次数为1次
+      4. I/0 端口号为 0x3f8
+
+      根据要求，编写对应的if-else语句即可
+
+   2. 计算cs的具体地址`(char*)run +run->io.data_offset`
+
+   3. 错误处理，保证鲁棒性
+
+## 4 实验分析
+
+1. 只输出“H”之后报错
+
+   原因是输出的case没有break，因此输出一次之后，直接进入报错的分支
+
+2. 最终正常输出`Hello, world!\nKVM_EXIT_HLT`符合汇编代码的输出预期
+
+## （可选）5 遇到的问题及解决方案
+
+报错`KVM EXIT FAIL ENTRY: hardware entry failure reason = 0x103f80101`
+
+原因是M系列芯片的mac是ARM架构，而代码为x86架构编写，两者不兼容，因此使用x86物理机做实验。
+
+## 附录
 
 ## 附录
 
@@ -218,7 +272,16 @@ int main(void)
             run->io.port == 0x3f8) {
             // 处理串口输出
             putchar(*((char*)run + run->io.data_offset));
-            fflush(stdout);
+            if (result == EOF) {
+                errx(1, "putchar failed: output error");
+            }
+            if (fflush(stdout) != 0) {
+                errx(1, "fflush failed: flush error");
+            }
+        } else {
+            // 处理其他I/O操作或未处理的I/O
+            errx(1, "Unhandled I/O operation: direction=%d, size=%d, port=0x%x", 
+                 run->io.direction, run->io.size, run->io.port);
         }
         break;
         // --------- END OF YOUR CODE ------------
@@ -238,3 +301,8 @@ int main(void)
 ### 运行截图
 
 ![0af4899f1c353de89070e88c08ce7d05](./.report.photoasset/0af4899f1c353de89070e88c08ce7d05.png)
+
+
+
+
+
