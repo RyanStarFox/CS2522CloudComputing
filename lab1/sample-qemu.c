@@ -151,28 +151,30 @@ int main(void)
         case KVM_EXIT_HLT:
             puts("KVM_EXIT_HLT");
             return 0;
-            case KVM_EXIT_IO:
-            // --------------------------------------
-            //---------- START YOUR CODE -------------
-            if (run->io.direction == KVM_EXIT_IO_OUT && 
-                run->io.size == 1 && 
-                run->io.port == 0x3f8) {
-                // 处理串口输出
-                int result = putchar(*((char*)run + run->io.data_offset));
-                if (result == EOF) {
-                    errx(1, "putchar failed: output error");
-                }
-                if (fflush(stdout) != 0) {
-                    errx(1, "fflush failed: flush error");
-                }
-            } else {
-                // 处理其他I/O操作或未处理的I/O
-                errx(1, "Unhandled I/O operation: direction=%d, size=%d, port=0x%x", 
-                     run->io.direction, run->io.size, run->io.port);
+        case KVM_EXIT_IO:
+        // --------------------------------------
+        //---------- START YOUR CODE -------------
+        if (run->io.direction == KVM_EXIT_IO_OUT && 
+            run->io.size == 1 && 
+            run->io.port == 0x3f8) {
+            // 处理串口输出
+            char input = *((char*)run + run->io.data_offset);
+            if (input >= 'A' && input <= 'Z') {
+                input += 32;
             }
-            break;
-            // --------- END OF YOUR CODE ------------
-            //  ------------------------------------- 
+            int result = putchar(input);
+            if (result == EOF) {
+                errx(1, "putchar failed: output error");
+            }
+            if (fflush(stdout) != 0) {
+                errx(1, "fflush failed: flush error");
+            }
+        } else {
+            // 处理其他I/O操作或未处理的I/O
+            errx(1, "Unhandled I/O operation: direction=%d, size=%d, port=0x%x", 
+                    run->io.direction, run->io.size, run->io.port);
+        }
+        break;
         // --------- END OF YOUR CODE ------------
         //  ------------------------------------- 
         case KVM_EXIT_FAIL_ENTRY:

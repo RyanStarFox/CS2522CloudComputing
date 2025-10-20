@@ -27,12 +27,12 @@
 
 大多数现代CPU把特权级分为4个ring，具体如下表：
 
-| **Ring** | **权限** | **示例**                                              |
-| -------- | -------- | ----------------------------------------------------- |
-| Ring 0   | 最特权   | 内核 / 操作系统核心（可直接操作硬件、修改控制寄存器） |
-| Ring 1   | 较高特权 | 很少使用，部分驱动或系统服务                          |
-| Ring 2   | 较低特权 | 很少使用                                              |
-| Ring 3   | 用户态   | 普通应用程序（无法执行特权指令）                      |
+| **Ring** | **权限** | **示例**                                        |
+| -------------- | -------------- | ----------------------------------------------------- |
+| Ring 0         | 最特权         | 内核 / 操作系统核心（可直接操作硬件、修改控制寄存器） |
+| Ring 1         | 较高特权       | 很少使用，部分驱动或系统服务                          |
+| Ring 2         | 较低特权       | 很少使用                                              |
+| Ring 3         | 用户态         | 普通应用程序（无法执行特权指令）                      |
 
 为了满足虚拟机系统本质要求“等价”，即使是虚拟机，也要支持Ring0，但这又与虚拟机系统本质要求的“资源控制”不能直接访问物理资源矛盾。因此引入“非根模式”，这样的话，虚拟机系统仍然可以认为自己处于Ring0，而运行敏感指令的时候，会触发陷入，由Hypervisor接管。
 
@@ -46,9 +46,7 @@
 1. 环境配置：
 
    1. 一开始使用MacBook的Vmware，使用之前安装的Ubuntu。
-
-   2. 实验中遇到问题，转而使用一台之前安装过Deepin的物理机（在4 实验分析中有解释）。
-
+   2. 实验中遇到问题，转而使用一台之前安装过Deepin的物理机（在5中有解释）。
    3. 两者为了方便实验和自己的使用习惯，均安装zsh，oh-my-zsh，autosuggestion，zoxoide
 
       ```shell
@@ -58,23 +56,19 @@
       git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
       sudo apt install zoxide -y
       ```
-
-      
-
 2. 阅读lab已有代码，了解代码结构与作用，具体如下：
 
-   | 行数    | 代码解释                                                     |
-   | ------- | ------------------------------------------------------------ |
-   | 39-70   | 汇编代码，打印“Hello, world!”                                |
-   | 76-85   | 定义kvm，用于给vm分配硬件资源                                |
-   | 87-89   | 定义vm                                                       |
-   | 91-106  | 分配一块内存空间，并且把它给虚拟机的内存                     |
-   | 108-110 | 创建一个vCPU                                                 |
+   | 行数    | 代码解释                                                                   |
+   | ------- | -------------------------------------------------------------------------- |
+   | 39-70   | 汇编代码，打印“Hello, world!”                                            |
+   | 76-85   | 定义kvm，用于给vm分配硬件资源                                              |
+   | 87-89   | 定义vm                                                                     |
+   | 91-106  | 分配一块内存空间，并且把它给虚拟机的内存                                   |
+   | 108-110 | 创建一个vCPU                                                               |
    | 112-121 | 把vCPU的kvm_run结构，与Hypervisor双向共享。kvm_run相当于是vCPU的实时状态板 |
-   | 123-131 | 初始化Code Segment                                           |
-   | 133-143 | 初始化Register                                               |
-   | 145-175 | 让vCPU运行汇编代码，定义了各类事件                           |
-
+   | 123-131 | 初始化Code Segment                                                         |
+   | 133-143 | 初始化Register                                                             |
+   | 145-175 | 让vCPU运行汇编代码，定义了各类事件                                         |
 3. 根据要求编写代码
 
    1. 要求VM 的 IO 全部满足以下情况时，我们才打印内容：
@@ -85,26 +79,20 @@
       4. I/0 端口号为 0x3f8
 
       根据要求，编写对应的if-else语句即可
-
-   2. 计算cs的具体地址`(char*)run +run->io.data_offset`
-
+   2. 计算cs的具体地址 `(char*)run +run->io.data_offset`
    3. 错误处理，保证鲁棒性
 
 ## 4 实验分析
 
 1. 只输出“H”之后报错
-
    原因是输出的case没有break，因此输出一次之后，直接进入报错的分支
-
-2. 最终正常输出`Hello, world!\nKVM_EXIT_HLT`符合汇编代码的输出预期
+2. 最终正常输出 `hello, world!\nKVM_EXIT_HLT`符合汇编代码的输出预期
 
 ## （可选）5 遇到的问题及解决方案
 
-报错`KVM EXIT FAIL ENTRY: hardware entry failure reason = 0x103f80101`
+报错 `KVM EXIT FAIL ENTRY: hardware entry failure reason = 0x103f80101`
 
 原因是M系列芯片的mac是ARM架构，而代码为x86架构编写，两者不兼容，因此使用x86物理机做实验。
-
-## 附录
 
 ## 附录
 
@@ -271,7 +259,11 @@ int main(void)
             run->io.size == 1 && 
             run->io.port == 0x3f8) {
             // 处理串口输出
-            putchar(*((char*)run + run->io.data_offset));
+            char input = *((char*)run + run->io.data_offset);
+            if (input >= 'A' && input <= 'Z') {
+                input += 32;
+            }
+            int result = putchar(input);
             if (result == EOF) {
                 errx(1, "putchar failed: output error");
             }
@@ -281,7 +273,7 @@ int main(void)
         } else {
             // 处理其他I/O操作或未处理的I/O
             errx(1, "Unhandled I/O operation: direction=%d, size=%d, port=0x%x", 
-                 run->io.direction, run->io.size, run->io.port);
+                    run->io.direction, run->io.size, run->io.port);
         }
         break;
         // --------- END OF YOUR CODE ------------
@@ -300,9 +292,4 @@ int main(void)
 
 ### 运行截图
 
-![0af4899f1c353de89070e88c08ce7d05](./.report.photoasset/0af4899f1c353de89070e88c08ce7d05.png)
-
-
-
-
-
+![0af4899f1c353de89070e88c08ce7d05](./.report.photoasset/\fb708ddb32ac8b0bf0a5d255d54fbcc7.png)
