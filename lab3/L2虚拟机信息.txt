@@ -25,121 +25,127 @@ ubuntu@ubuntu:~/Book/Chapter4$ lspci -s 00:04.0 -vvv -xxxx
 30: 00 00 00 00 40 00 00 00 00 00 00 00 0b 01 00 00
 
 ubuntu@ubuntu:~/Book/Chapter4$ cat /proc/devices | grep edu
+245 pci_edu
 
 ubuntu@ubuntu:~/Book/Chapter4$ ls /dev/edu
 
-ubuntu@ubuntu:~/Book/Chapter4$ sudo dmesg
-[  358.696204] length 100000
-[  358.696273] config 0 34
-[  358.696310] config 1 12
-[  358.696347] config 2 e8
-[  358.696383] config 3 11
-[  358.696419] config 4 3
-[  358.696454] config 5 1
-[  358.696490] config 6 10
-[  358.696526] config 7 0
-[  358.696563] config 8 10
-[  358.696599] config 9 0
-[  358.696636] config a ff
-[  358.696672] config b 0
-[  358.696708] config c 0
-[  358.696745] config d 0
-[  358.696781] config e 0
-[  358.696820] config f 0
-[  358.696856] config 10 0
-[  358.696893] config 11 0
-[  358.696929] config 12 a0
-[  358.696965] config 13 fe
-[  358.697001] config 14 0
-[  358.697038] config 15 0
-[  358.697074] config 16 0
-[  358.697114] config 17 0
-[  358.697150] config 18 0
-[  358.697186] config 19 0
-[  358.697223] config 1a 0
-[  358.697259] config 1b 0
-[  358.697295] config 1c 0
-[  358.697331] config 1d 0
-[  358.697367] config 1e 0
-[  358.697404] config 1f 0
-[  358.697440] config 20 0
-[  358.697476] config 21 0
-[  358.697512] config 22 0
-[  358.697549] config 23 0
-[  358.697585] config 24 0
-[  358.697620] config 25 0
-[  358.697656] config 26 0
-[  358.697692] config 27 0
-[  358.697728] config 28 0
-[  358.697765] config 29 0
-[  358.697801] config 2a 0
-[  358.697837] config 2b 0
-[  358.697874] config 2c f4
-[  358.697910] config 2d 1a
-[  358.697946] config 2e 0
-[  358.697982] config 2f 11
-[  358.698019] config 30 0
-[  358.698053] config 31 0
-[  358.698093] config 32 0
-[  358.698129] config 33 0
-[  358.698165] config 34 40
-[  358.698200] config 35 0
-[  358.698236] config 36 0
-[  358.698272] config 37 0
-[  358.698308] config 38 0
-[  358.698344] config 39 0
-[  358.698381] config 3a 0
-[  358.698417] config 3b 0
-[  358.698453] config 3c b
-[  358.698489] config 3d 1
-[  358.698526] config 3e 0
-[  358.698563] config 3f 0
-[  358.698563] dev->irq a
-[  358.698594] io 0 10000ed
-[  358.698615] io 4 0
-[  358.698635] io 8 375f00
-[  358.698655] io c ffffffff
-[  358.698674] io 10 ffffffff
-[  358.698695] io 14 ffffffff
-[  358.698715] io 18 ffffffff
-[  358.698734] io 1c ffffffff
-[  358.698754] io 20 80
-[  358.698774] io 24 0
-[  358.698795] io 28 ffffffff
-[  358.698816] io 2c ffffffff
-[  358.698836] io 30 ffffffff
-[  358.698856] io 34 ffffffff
-[  358.698876] io 38 ffffffff
-[  358.698896] io 3c ffffffff
-[  358.698916] io 40 ffffffff
-[  358.698936] io 44 ffffffff
-[  358.698956] io 48 ffffffff
-[  358.698977] io 4c ffffffff
-[  358.698997] io 50 ffffffff
-[  358.699017] io 54 ffffffff
-[  358.699037] io 58 ffffffff
-[  358.699056] io 5c ffffffff
-[  358.699094] io 60 ffffffff
-[  358.699114] io 64 ffffffff
-[  358.699135] io 68 ffffffff
-[  358.699155] io 6c ffffffff
-[  358.699178] io 70 ffffffff
-[  358.699199] io 74 ffffffff
-[  358.699219] io 78 ffffffff
-[  358.699240] io 7c ffffffff
-[  358.699260] io 80 a00104
-[  358.699281] io 84 ffffffff
-[  358.699301] io 88 40000
-[  358.699322] io 8c ffffffff
-[  358.699343] io 90 4
-[  358.699363] io 94 ffffffff
-[  358.699412] irq_handler irq = 10 dev = 245 irq_status = 12345678
-[  359.712233] receive a FACTORIAL interrupter!
-[  359.712234] irq_handler irq = 10 dev = 245 irq_status = 1
-[  360.736462] computing result 375f00
-[  360.836521] receive a DMA read interrupter!
-[  360.836523] irq_handler irq = 10 dev = 245 irq_status = 100
-[  362.860579] receive a DMA read interrupter!
-[  362.860581] irq_handler irq = 10 dev = 245 irq_status = 100
+ubuntu@ubuntu:~/Book/Chapter4$ sudo mknod /dev/edu c 245 0
+
+ubuntu@ubuntu:~/Book/Chapter4$ ls /dev/edu
 /dev/edu
-245 pci_edu
+
+ubuntu@ubuntu:~/Book/Chapter4$ sudo dmesg --clear
+ubuntu@ubuntu:~/Book/Chapter4$ sudo ./test
+ubuntu@ubuntu:~/Book/Chapter4$ sudo dmesg
+[  155.593863] length 100000
+[  155.593931] config 0 34
+[  155.593947] config 1 12
+[  155.593964] config 2 e8
+[  155.593980] config 3 11
+[  155.593997] config 4 3
+[  155.594013] config 5 1
+[  155.594030] config 6 10
+[  155.594046] config 7 0
+[  155.594062] config 8 10
+[  155.594079] config 9 0
+[  155.594095] config a ff
+[  155.594111] config b 0
+[  155.594127] config c 0
+[  155.594144] config d 0
+[  155.594160] config e 0
+[  155.594176] config f 0
+[  155.594192] config 10 0
+[  155.594223] config 11 0
+[  155.594240] config 12 a0
+[  155.594256] config 13 fe
+[  155.594272] config 14 0
+[  155.594289] config 15 0
+[  155.594305] config 16 0
+[  155.594321] config 17 0
+[  155.594337] config 18 0
+[  155.594353] config 19 0
+[  155.594369] config 1a 0
+[  155.594385] config 1b 0
+[  155.594401] config 1c 0
+[  155.594417] config 1d 0
+[  155.594433] config 1e 0
+[  155.594449] config 1f 0
+[  155.594466] config 20 0
+[  155.594482] config 21 0
+[  155.594498] config 22 0
+[  155.594514] config 23 0
+[  155.594531] config 24 0
+[  155.594547] config 25 0
+[  155.594563] config 26 0
+[  155.594579] config 27 0
+[  155.594600] config 28 0
+[  155.594616] config 29 0
+[  155.594632] config 2a 0
+[  155.594649] config 2b 0
+[  155.594665] config 2c f4
+[  155.594681] config 2d 1a
+[  155.594697] config 2e 0
+[  155.594713] config 2f 11
+[  155.594729] config 30 0
+[  155.594746] config 31 0
+[  155.594762] config 32 0
+[  155.594778] config 33 0
+[  155.594794] config 34 40
+[  155.594810] config 35 0
+[  155.594826] config 36 0
+[  155.594843] config 37 0
+[  155.594859] config 38 0
+[  155.594875] config 39 0
+[  155.594891] config 3a 0
+[  155.594908] config 3b 0
+[  155.594926] config 3c b
+[  155.594945] config 3d 1
+[  155.594961] config 3e 0
+[  155.594977] config 3f 0
+[  155.594978] dev->irq a
+[  155.595030] io 0 10000ed
+[  155.595041] io 4 0
+[  155.595051] io 8 0
+[  155.595062] io c ffffffff
+[  155.595072] io 10 ffffffff
+[  155.595082] io 14 ffffffff
+[  155.595092] io 18 ffffffff
+[  155.595102] io 1c ffffffff
+[  155.595112] io 20 0
+[  155.595121] io 24 0
+[  155.595131] io 28 ffffffff
+[  155.595141] io 2c ffffffff
+[  155.595151] io 30 ffffffff
+[  155.595161] io 34 ffffffff
+[  155.595171] io 38 ffffffff
+[  155.595181] io 3c ffffffff
+[  155.595191] io 40 ffffffff
+[  155.595201] io 44 ffffffff
+[  155.595211] io 48 ffffffff
+[  155.595220] io 4c ffffffff
+[  155.595230] io 50 ffffffff
+[  155.595240] io 54 ffffffff
+[  155.595250] io 58 ffffffff
+[  155.595260] io 5c ffffffff
+[  155.595270] io 60 ffffffff
+[  155.595280] io 64 ffffffff
+[  155.595290] io 68 ffffffff
+[  155.595300] io 6c ffffffff
+[  155.595310] io 70 ffffffff
+[  155.595319] io 74 ffffffff
+[  155.595329] io 78 ffffffff
+[  155.595339] io 7c ffffffff
+[  155.595349] io 80 0
+[  155.595359] io 84 ffffffff
+[  155.595369] io 88 0
+[  155.595379] io 8c ffffffff
+[  155.595388] io 90 0
+[  155.595398] io 94 ffffffff
+[  155.595440] irq_handler irq = 10 dev = 245 irq_status = 12345678
+[  156.608168] receive a FACTORIAL interrupter!
+[  156.608171] irq_handler irq = 10 dev = 245 irq_status = 1
+[  157.632136] computing result 375f00
+[  157.732140] receive a DMA read interrupter!
+[  157.732150] irq_handler irq = 10 dev = 245 irq_status = 100
+[  159.755615] receive a DMA read interrupter!
+[  159.755628] irq_handler irq = 10 dev = 245 irq_status = 100
