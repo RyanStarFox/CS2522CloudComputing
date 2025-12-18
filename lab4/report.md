@@ -1,4 +1,4 @@
-# 实验一: CPU 虚拟化
+# 实验四: StratoVirt 与 QEMU 方案对比
 
 <center>[523031910224] [邵言]</center>
 
@@ -48,6 +48,8 @@ Epoll 基于“事件驱动 + 就绪通知”模型。内核为每个 epoll 实�
 
 ![boot_time_comparison](./.report.photoasset/boot_time_comparison.png)
 
+
+
 ### 内存占用对比
 
 - StratoVirt 的总内存占用约 1.13 GB，QEMU 约 1.8 GB。
@@ -61,6 +63,8 @@ Epoll 基于“事件驱动 + 就绪通知”模型。内核为每个 epoll 实�
 - 单线程性能：StratoVirt 事件处理速度低于 QEMU（约 1250 vs 5000 events/s），延迟略高。
 - 多线程扩展能力：随着线程数增加，StratoVirt 吞吐量提升有限，而 QEMU 提升明显，尤其是 16、32、64 线程情况下差距明显。
 - 原因：StratoVirt 的多线程并行优化不如 QEMU 完善，适合轻量虚拟化和低并发场景。
+
+![image-20251203163733164](./.report.photoasset/image-20251203163733164.png)
 
 ![cpu_performance_comparison](./.report.photoasset/cpu_performance_comparison.png)
 

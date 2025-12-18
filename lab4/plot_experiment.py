@@ -138,12 +138,14 @@ stratovirt_memory_data = {
 # 3. CPU性能数据
 qemu_cpu_data = {
     'threads': [1, 1, 4, 4, 16, 16, 32, 32, 64, 64],
-    'latency': [0.99, 0.85, 3.75, 3.87, 13.49, 13.70, 31.43, 31.29, 65.81, 62.08]
+    'latency': [0.99, 0.85, 3.75, 3.87, 13.49, 13.70, 31.43, 31.29, 65.81, 62.08],
+    'events_per_sec': [5061, 5884, 5313, 5155, 5894, 5813, 5052, 5079, 4827, 5119]
 }
 
 stratovirt_cpu_data = {
     'threads': [1, 1, 4, 4, 16, 16, 32, 32, 64, 64],
-    'latency': [0.80, 0.80, 3.15, 3.17, 12.14, 12.25, 23.92, 23.67, 49.36, 46.17]
+    'latency': [0.80, 0.80, 3.15, 3.17, 12.14, 12.25, 23.92, 23.67, 49.36, 46.17],
+    'events_per_sec': [1252, 1255, 1256, 1250, 1269, 1271, 1261, 1269, 1145, 1233]
 }
 
 # 4. 内存性能数据
@@ -341,6 +343,52 @@ def plot_cpu_performance():
     print(f"✓ CPU性能对比图已保存: {output_path}")
     plt.close()
 
+def plot_cpu_events_per_sec():
+    """3b. CPU性能对比：Threads vs Events/sec"""
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # 按线程数分组并计算平均events per second
+    qemu_threads_events_dict = {}
+    for t, e in zip(qemu_cpu_data['threads'], qemu_cpu_data['events_per_sec']):
+        if t not in qemu_threads_events_dict:
+            qemu_threads_events_dict[t] = []
+        qemu_threads_events_dict[t].append(e)
+    
+    stratovirt_threads_events_dict = {}
+    for t, e in zip(stratovirt_cpu_data['threads'], stratovirt_cpu_data['events_per_sec']):
+        if t not in stratovirt_threads_events_dict:
+            stratovirt_threads_events_dict[t] = []
+        stratovirt_threads_events_dict[t].append(e)
+    
+    threads = sorted(set(qemu_cpu_data['threads']))
+    qemu_events = [calculate_mean(qemu_threads_events_dict[t]) for t in threads]
+    stratovirt_events = [calculate_mean(stratovirt_threads_events_dict[t]) for t in threads]
+    
+    ax.plot(threads, qemu_events, marker='o', linewidth=2, markersize=8, 
+           label='QEMU', color='#3498db')
+    ax.plot(threads, stratovirt_events, marker='s', linewidth=2, markersize=8, 
+           label='StratoVirt', color='#e74c3c')
+    
+    ax.set_xlabel('线程数', fontsize=12, fontweight='bold', fontproperties=CHINESE_FONT)
+    ax.set_ylabel('Events/sec', fontsize=12, fontweight='bold', fontproperties=CHINESE_FONT)
+    ax.set_title('CPU性能对比：线程数 vs Events/sec', fontsize=14, fontweight='bold', fontproperties=CHINESE_FONT)
+    ax.legend(prop=CHINESE_FONT)
+    ax.grid(True, alpha=0.3)
+    ax.set_xscale('log', base=2)
+    
+    # 添加数值标签
+    for i, (q_val, s_val) in enumerate(zip(qemu_events, stratovirt_events)):
+        ax.text(threads[i], q_val, f'{q_val:.0f}', ha='center', va='bottom', 
+               fontsize=8, color='#3498db')
+        ax.text(threads[i], s_val, f'{s_val:.0f}', ha='center', va='top', 
+               fontsize=8, color='#e74c3c')
+    
+    plt.tight_layout()
+    output_path = os.path.join(OUTPUT_DIR, 'cpu_events_per_sec_comparison.png')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    print(f"✓ CPU Events/sec对比图已保存: {output_path}")
+    plt.close()
+
 def plot_memory_performance():
     """4. 内存性能对比：Block Size vs Events/sec"""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -460,6 +508,7 @@ def main():
     plot_boot_time()
     plot_memory_usage()
     plot_cpu_performance()
+    plot_cpu_events_per_sec()
     plot_memory_performance()
     plot_io_performance()
     
